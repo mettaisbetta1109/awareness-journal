@@ -1,9 +1,19 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import os
 
 # 🎨 Custom Styling
 st.set_page_config(page_title="Awareness in Action", page_icon="✨", layout="centered")
+
+# Define CSV File Location
+CSV_FILE = "journal_entries.csv"
+
+# Load Existing Data
+if os.path.exists(CSV_FILE):
+    df = pd.read_csv(CSV_FILE)
+else:
+    df = pd.DataFrame(columns=["Date", "Reflection", "Category", "Mood", "Energy"])
 
 # 🌿 Custom CSS for Styling
 st.markdown(
@@ -27,10 +37,6 @@ st.markdown("<h1 class='title'>📝 Awareness in Action</h1>", unsafe_allow_html
 st.markdown("<p class='subtitle'>Track your reflections and watch your transformation unfold.</p>", unsafe_allow_html=True)
 st.write("---")  # Divider
 
-# ✅ Initialize session state for journal entries
-if "journal_entries" not in st.session_state:
-    st.session_state.journal_entries = []
-
 # 📅 Log Reflection - Use Two Columns for Layout
 col1, col2 = st.columns(2)
 
@@ -44,25 +50,23 @@ with col2:
 
 reflection = st.text_area("💡 Describe your 'aha' moment")
 
-# 💾 Save Entry
+# 💾 Save Entry (Now Saves to CSV File)
 if st.button("💾 Save Entry"):
-    data_entry = {
-        "Date": date,
-        "Reflection": reflection,
-        "Category": selected_category,
-        "Mood": mood,
-        "Energy": energy
-    }
-    st.session_state.journal_entries.append(data_entry)
-    st.success("✅ Entry saved successfully!")
+    new_entry = {"Date": date, "Reflection": reflection, "Category": selected_category, "Mood": mood, "Energy": energy}
+    
+    # Append the new entry to the DataFrame
+    df = df.append(new_entry, ignore_index=True)
+    
+    # Save DataFrame to CSV
+    df.to_csv(CSV_FILE, index=False)
+    
+    st.success("✅ Entry saved successfully! (Now stored permanently!)")
 
 st.write("---")  # Divider
 
 # 📖 Display Past Entries
-if st.session_state.journal_entries:
+if not df.empty:
     st.markdown("<h2 class='title'>📖 Past Reflections</h2>", unsafe_allow_html=True)
-    
-    df = pd.DataFrame(st.session_state.journal_entries)
     st.dataframe(df)
 
     # 📊 Mood & Energy Trends Over Time
