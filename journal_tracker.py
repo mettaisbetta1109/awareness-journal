@@ -38,39 +38,3 @@ st.markdown("<p class='subtitle'>Track your reflections and watch your transform
 st.write("---")  # Divider
 
 # 📅 Log Reflection - Use Two Columns for Layout
-col1, col2 = st.columns(2)
-
-with col1:
-    date = st.date_input("📅 Select Date", datetime.date.today())
-    selected_category = st.selectbox("📂 Choose a category", ["Emotional Shift", "Physical Sensation", "Habit Reinforcement", "Perspective Shift"])
-
-with col2:
-    mood = st.slider("😊 Mood Level (1-10)", 1, 10, 5)
-    energy = st.slider("⚡ Energy Level (1-10)", 1, 10, 5)
-
-reflection = st.text_area("💡 Describe your 'aha' moment")
-
-# 💾 Save Entry (Now Saves to CSV File)
-if st.button("💾 Save Entry"):
-    new_entry = {"Date": date, "Reflection": reflection, "Category": selected_category, "Mood": mood, "Energy": energy}
-    
-    # Append the new entry to the DataFrame
-    df = df.append(new_entry, ignore_index=True)
-    
-    # Save DataFrame to CSV
-    df.to_csv(CSV_FILE, index=False)
-    
-    st.success("✅ Entry saved successfully! (Now stored permanently!)")
-
-st.write("---")  # Divider
-
-# 📖 Display Past Entries
-if not df.empty:
-    st.markdown("<h2 class='title'>📖 Past Reflections</h2>", unsafe_allow_html=True)
-    st.dataframe(df)
-
-    # 📊 Mood & Energy Trends Over Time
-    st.markdown("<h2 class='title'>📊 Mood & Energy Trends Over Time</h2>", unsafe_allow_html=True)
-    df['Date'] = pd.to_datetime(df['Date'])
-    df = df.sort_values("Date")
-    st.line_chart(df.set_index("Date")[['Mood', 'Energy']])
